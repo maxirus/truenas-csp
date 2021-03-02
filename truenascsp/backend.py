@@ -230,10 +230,11 @@ class Handler:
 
     def get(self, uri):
         auth = self._get_auth()
+        params = { "id": "tank/k8s-iscsi" } if uri == "pool/dataset" else {}
         try:
             self.logger.debug('TrueNAS GET request URI: %s', uri)
             if type(auth) == HTTPBasicAuth:
-                self.req_backend = requests.get(self.url_tmpl(uri),
+                self.req_backend = requests.get(self.url_tmpl(uri), params=params
                                     auth=auth, verify=False)
             else:
                 self.req_backend = requests.get(self.url_tmpl(uri),
