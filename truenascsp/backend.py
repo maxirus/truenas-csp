@@ -215,9 +215,10 @@ class Handler:
         headers = {
             'Authorization': 'Bearer {token}'.format(token=self.token)
         }
+        params = { "id": "tank/k8s-iscsi" } if uri == "pool/dataset" else {}
         try:
             self.logger.debug('TrueNAS GET request URI: %s', uri)
-            self.req_backend = requests.get(self.url_tmpl(uri),
+            self.req_backend = requests.get(self.url_tmpl(uri), params = params,
                                             headers=headers, verify=False)
             self.logger.debug('TrueNAS response: %s', self.req_backend.text)
             self.resp_msg = '{code} {reason}'.format(
