@@ -234,7 +234,7 @@ class Handler:
         try:
             self.logger.debug('TrueNAS GET request URI: %s', uri)
             if type(auth) == HTTPBasicAuth:
-                self.req_backend = requests.get(self.url_tmpl(uri), params=params
+                self.req_backend = requests.get(self.url_tmpl(uri), params=params,
                                     auth=auth, verify=False)
             else:
                 self.req_backend = requests.get(self.url_tmpl(uri),
