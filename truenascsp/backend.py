@@ -182,7 +182,10 @@ class Handler:
     def fetch(self, resource, **kwargs):
         results = []
         try:
-            self.get(resource)
+            if resource == "pool/dataset" and kwargs.get('value'):
+                self._get_dataset(kwargs.get('value'))
+            else:
+                self.get(resource)
 
             if self.req_backend.status_code != 200:  # FIXME
                 self.logger.debug('TrueNAS GET Request through fetch: %s', self.req_backend.status_code)
@@ -228,16 +231,16 @@ class Handler:
                                                rid=rid)
         return uri
 
-    def get(self, uri):
+    def get(self, uri, params = None):
         auth = self._get_auth()
-        params = { "id": "tank/k8s-iscsi" } if uri == "pool/dataset" else {}
+        # params = { "id": "tank/k8s-iscsi" } if uri == "pool/dataset" else {}
         try:
             self.logger.debug('TrueNAS GET request URI: %s', uri)
             if type(auth) == HTTPBasicAuth:
                 self.req_backend = requests.get(self.url_tmpl(uri), params=params,
                                     auth=auth, verify=False)
             else:
-                self.req_backend = requests.get(self.url_tmpl(uri),
+                self.req_backend = requests.get(self.url_tmpl(uri), params=params,
                                     headers=auth, verify=False)
             self.logger.debug('TrueNAS response: %s', self.req_backend.text)
             self.resp_msg = '{code} {reason}'.format(
@@ -246,6 +249,13 @@ class Handler:
         except Exception:
             self.csp_error('Backend Request (GET) Exception',
                            traceback.format_exc())
+
+    def _get_dataset(self, volume_id):
+        """
+        Helper function to get a single dataset
+        """
+        params = { "id": f"tank/k8s-iscsi/{volume_id}" }
+        self.get("pool/dataset", params)
 
     def post(self, uri, content):
         auth = self._get_auth()
